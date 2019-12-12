@@ -25,7 +25,7 @@ func stats(w http.ResponseWriter, r *http.Request) {
 }
 
 func fazRotas() {
-	http.HandleFunc("/", homePage)
+	http.HandleFunc("/", stats)
 	http.HandleFunc("/stats", stats)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
