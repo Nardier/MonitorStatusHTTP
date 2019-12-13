@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+
+
 func main() {
 	fmt.Println("Monitor")
 	fazRotas()
@@ -25,8 +27,8 @@ func stats(w http.ResponseWriter, r *http.Request) {
 }
 
 func fazRotas() {
-	http.HandleFunc("/", stats)
+	http.HandleFunc("/", homePage)
 	http.HandleFunc("/stats", stats)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 

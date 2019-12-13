@@ -22,7 +22,7 @@
 
 <script>
     let subscribers = {};
-    const websocket = new WebSocket("ws://localhost:8080/stats");
+    const websocket = new WebSocket("ws://localhost:8081/stats");
 
     websocket.onopen = function(event) {
         console.log("Successfully connected to websocket server");
