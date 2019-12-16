@@ -5,6 +5,6 @@ type Retorno struct {
 	Response_Time       float64
 	Response_StatusCode int
 	Response_Status     string
-	TEOM                float64 //Time Elapsed On Monitoring
+	TEOM                string //Time Elapsed On Monitoring
 	Request_Url         string
 }

@@ -36,6 +36,7 @@ func fazRequisicao() Retorno {
 	response.Response_Time = time.Since(start).Seconds()
 	response.Response_Status = res.Status
 	response.Response_StatusCode = res.StatusCode
+	fmt.Println(res.StatusCode)
 	response.Request_Url = url
 	return response
 }
@@ -43,18 +44,14 @@ func fazRequisicao() Retorno {
 func Writer(conn *websocket.Conn) {
 	start := time.Now()
 
-	//var thisConnect []websocket.Conn
-
 	var retorno Retorno
 	for {
-		fmt.Println(conn)
 		ticker := time.NewTicker(time.Second)
-
 		for t := range ticker.C {
 			fmt.Printf("Updating Stats: %+v\n", t)
 			//TODO: Converter "t" para retornar
 			retorno = fazRequisicao()
-			retorno.TEOM = time.Since(start).Seconds()
+			retorno.TEOM = fmt.Sprintf("%f", time.Since(start).Seconds())[0:4]
 			jsonString, err := json.Marshal(retorno)
 			if err != nil {
 				fmt.Println(err)

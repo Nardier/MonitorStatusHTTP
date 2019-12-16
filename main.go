@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-
-
 func main() {
 	fmt.Println("Monitor")
 	fazRotas()
@@ -23,6 +21,7 @@ func stats(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, "%+v\n", err)
 	}
+
 	go websocket.Writer(ws)
 }
 
