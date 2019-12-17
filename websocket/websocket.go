@@ -25,34 +25,61 @@ func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 	return ws, nil
 }
 
-func fazRequisicao() Retorno {
-	var response Retorno
+func doRequest() ResponseDataBody {
+	var returnData ResponseDataBody
 	url := "https://www.google.com.br"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("cache-control", "no-cache")
 	start := time.Now()
 	res, _ := http.DefaultClient.Do(req)
-	response.Response_Time = time.Since(start).Seconds()
-	response.Response_Status = res.Status
-	response.Response_StatusCode = res.StatusCode
+	returnData.Response_Time = time.Since(start).Seconds()
+	returnData.Response_Status = res.Status
+	returnData.Response_StatusCode = res.StatusCode
 	fmt.Println(res.StatusCode)
-	response.Request_Url = url
-	return response
+	returnData.Request_Url = url
+	return returnData
+}
+
+func emitMessage() {
+	for {
+		val := <-messagChannel
+		latlong := fmt.Sprintf("Mensagem")
+		// send to every client that is currently connected
+		for client := range clients {
+			err := client.WriteMessage(websocket.TextMessage, []byte(latlong))
+			if err != nil {
+				log.Printf("Websocket error: %s", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+	}
+}
+
+func senderMessage(w http.ResponseWriter, r *http.Request) {
+	var message string
+	if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+		log.Printf("ERROR: %s", err)
+		http.Error(w, "Bad request", http.StatusTeapot)
+		return
+	}
+	defer r.Body.Close()
+	go writer(&message)
 }
 
 func Writer(conn *websocket.Conn) {
 	start := time.Now()
 
-	var retorno Retorno
+	var returnData ResponseDataBody
 	for {
 		ticker := time.NewTicker(time.Second)
 		for t := range ticker.C {
 			fmt.Printf("Updating Stats: %+v\n", t)
 			//TODO: Converter "t" para retornar
-			retorno = fazRequisicao()
-			retorno.TEOM = fmt.Sprintf("%f", time.Since(start).Seconds())[0:4]
-			jsonString, err := json.Marshal(retorno)
+			returnData = doRequest()
+			returnData.TEOM = fmt.Sprintf("%f", time.Since(start).Seconds())[0:4]
+			jsonString, err := json.Marshal(returnData)
 			if err != nil {
 				fmt.Println(err)
 			}

@@ -1,15 +1,19 @@
-package main
+package websocket
 
 import (
-	"./websocket"
+	ClassSocket "./websocket"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 )
 
+var clients = make(map[*websocket.Conn]bool)
+var messagChannel = make(chan *string)
+
 func main() {
 	fmt.Println("Monitor")
-	fazRotas()
+	routeFunc()
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -17,17 +21,17 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func stats(w http.ResponseWriter, r *http.Request) {
-	ws, err := websocket.Upgrade(w, r)
+	ws, err := ClassSocket.Upgrade(w, r)
 	if err != nil {
 		fmt.Fprintf(w, "%+v\n", err)
 	}
+	clients[ws] = true
 
-	go websocket.Writer(ws)
+	go ClassSocket.Writer(ws)
 }
 
-func fazRotas() {
+func routeFunc() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/stats", stats)
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
-
