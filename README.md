@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/Nardier/MonitorStatusHTTP)](https://goreportcard.com/report/github.com/Nardier/MonitorStatusHTTP)
+
 ### Monitor HTTP
 
 ###### Uptime monitor, latency and requests
