@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	modelObject "../models"
 )
 
 var upgrader = websocket.Upgrader{
@@ -25,8 +27,8 @@ func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 	return ws, nil
 }
 
-func doRequest() ResponseDataBody {
-	var returnData ResponseDataBody
+func doRequest() modelObject.ResponseDataBody_OBJ {
+	var returnData modelObject.ResponseDataBody_OBJ
 	url := "https://www.google.com.br"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("content-type", "application/json")
@@ -41,37 +43,10 @@ func doRequest() ResponseDataBody {
 	return returnData
 }
 
-func emitMessage() {
-	for {
-		val := <-messagChannel
-		latlong := fmt.Sprintf("Mensagem")
-		// send to every client that is currently connected
-		for client := range clients {
-			err := client.WriteMessage(websocket.TextMessage, []byte(latlong))
-			if err != nil {
-				log.Printf("Websocket error: %s", err)
-				client.Close()
-				delete(clients, client)
-			}
-		}
-	}
-}
-
-func senderMessage(w http.ResponseWriter, r *http.Request) {
-	var message string
-	if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
-		log.Printf("ERROR: %s", err)
-		http.Error(w, "Bad request", http.StatusTeapot)
-		return
-	}
-	defer r.Body.Close()
-	go writer(&message)
-}
-
 func Writer(conn *websocket.Conn) {
 	start := time.Now()
 
-	var returnData ResponseDataBody
+	var returnData modelObject.ResponseDataBody_OBJ
 	for {
 		ticker := time.NewTicker(time.Second)
 		for t := range ticker.C {
